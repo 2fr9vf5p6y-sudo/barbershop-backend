@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from sqlalchemy import create_engine, select
+from sqlalchemy import Float, String, create_engine, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
 DB_PATH = Path(__file__).resolve().parent / "barbershop.db"
@@ -13,6 +13,17 @@ SessionLocal = sessionmaker(bind=engine)
 
 class Base(DeclarativeBase):
     pass
+
+
+class Service(Base):
+    __tablename__ = "services"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    category_id: Mapped[int] = mapped_column("category_id", nullable=False)
+    title: Mapped[str] = mapped_column(String(100), nullable=False)
+    desc: Mapped[str] = mapped_column(String(100), nullable=False)
+    duration: Mapped[int] = mapped_column(nullable=False)
+    price: Mapped[float] = mapped_column(Float, nullable=False)
 
 
 class Master(Base):
