@@ -1,11 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-
-@dataclass(frozen=True)
-class Master:
-    master_id: int
-    name: str
+from database import Master, find_master
 
 
 @dataclass(frozen=True)
@@ -32,11 +28,6 @@ class Appoinment:
         )
 
 
-masters = [
-    Master(1, "Алексей Морозов"),
-    Master(2, "Дмитрий Иванов"),
-]
-
 services = [
     Service(1, "Мужская стрижка", 2200),
     Service(2, "Оформление бороды", 1000),
@@ -46,7 +37,7 @@ appointments: list[Appoinment] = []
 
 
 def get_master(master_id: int) -> Master | None:
-    return next((master for master in masters if master.master_id == master_id), None)
+    return find_master(master_id)
 
 
 def get_service(service_id: int) -> Service | None:
@@ -84,13 +75,13 @@ def create_appointment(
         return None
 
     for item in appointments:
-        if item.master_id == master.master_id and item.time == time:
+        if item.master_id == master.id and item.time == time:
             return None
 
     appointment = Appoinment(
         len(appointments) + 1,
         client_name.strip(),
-        master.master_id,
+        master.id,
         service.service_id,
         time,
     )
