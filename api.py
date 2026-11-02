@@ -3,7 +3,8 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from database import Master, get_db
+from database import Master, Service, get_db
+from schemas import ServiceCreate
 
 app = FastAPI(title="Barbershop API")
 
@@ -51,3 +52,28 @@ def get_master_by_id(master_id: int, db: Session = Depends(get_db)):
     if master is None:
         raise HTTPException(status_code=404, detail="Not Found")
     return master_to_dict(master)
+
+
+@app.post("/services", status_code=201)
+def create_service(service: ServiceCreate, db: Session = Depends(get_db)):
+    if not any(category["id"] == service.categoryId for category in categories):
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    new_service = Service(
+        category_id=service.categoryId,
+        title=service.title,
+        desc=service.desc,
+        duration=service.duration,
+        price=service.price,
+    )
+    db.add(new_service)
+    db.commit()
+    db.refresh(new_service)
+    return {
+        "id": new_service.id,
+        "categoryId": new_service.category_id,
+        "title": new_service.title,
+        "desc": new_service.desc,
+        "duration": new_service.duration,
+        "price": new_service.price,
+    }
